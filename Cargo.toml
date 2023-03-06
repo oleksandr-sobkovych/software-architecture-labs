@@ -1,0 +1,2 @@
+[workspace]
+members = [ "facade-service", "logging-service", "messages-service"]

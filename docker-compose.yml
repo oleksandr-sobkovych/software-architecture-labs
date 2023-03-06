@@ -1,0 +1,27 @@
+version: '3'
+services:
+  messages-service:
+    build: ./messages-service
+    environment:
+      - MESSAGES_SERVICE_PORT
+      - RUST_LOG
+    expose:
+      - "$MESSAGES_SERVICE_PORT"
+
+  logging-service:
+    build: ./logging-service
+    environment:
+      - LOGGING_SERVICE_PORT
+      - RUST_LOG
+    expose:
+      - "$LOGGING_SERVICE_PORT"
+
+  facade-service:
+    build: ./facade-service
+    environment:
+      - FACADE_SERVICE_PORT
+      - MESSAGES_SERVICE_PORT
+      - LOGGING_SERVICE_PORT
+      - RUST_LOG
+    ports:
+      - "$FACADE_SERVICE_PORT:$FACADE_SERVICE_PORT"
