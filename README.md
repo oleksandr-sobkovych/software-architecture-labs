@@ -1,4 +1,4 @@
-# [Lab 1: Microservices' Basics](https://github.com/oleksandr-sobkovych/software-architecture-labs)
+# [Lab 3: Microservices & Hazelcast](https://github.com/oleksandr-sobkovych/software-architecture-labs/tree/micro_hazelcast)
    Authors: [Oleksandr Sobkovych](https://github.com/oleksandr-sobkovych)
 ## Prerequisites
 
@@ -12,9 +12,20 @@ Setup variables in the .env file:
 ```bash
 MESSAGES_SERVICE_PORT=50051
 LOGGING_SERVICE_PORT=50051
+NGINX_LOGGING_SERVICE_PORT=4000
 # Both inner and outer
 FACADE_SERVICE_PORT=5000
 RUST_LOG=info
+```
+
+Change nginx configuration accordingly:
+
+```nginx
+...
+      server logging-service:50051;
+...
+      listen 4000 http2;
+...
 ```
 
 Build and run containers:
@@ -30,18 +41,4 @@ curl -X GET http://localhost:5000
 curl -d "Hello" -X POST http://localhost:5000
 ```
 
-## Examples
-
-![](images/1.png)
-
-![](images/2.png)
-
-![](images/3.png)
-
-![](images/4.png)
-
-![](images/5.png)
-
-Since messages are stored in a HashMap, the order can be "random": depends on random UUIDs.
-
-![](images/6.png)
+Access Hazelcast Management Center at [http://localhost:8080/](http://localhost:8080/)
