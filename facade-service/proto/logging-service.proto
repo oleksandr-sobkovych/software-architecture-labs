@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "ua.edu.ucu.software_architecture.labs.log_message";
+option java_outer_classname = "MessageLoggerProto";
+
+package log_message;
+
+service MessageLogger {
+    rpc LogMessage (MsgPostRequest) returns (LogReply);
+    rpc GetAllMessages (MsgAllGetRequest) returns (GetAllReply);
+}
+
+message MsgPostRequest {
+    string uuid = 1;
+    string message = 2;
+}
+
+message LogReply {}
+
+message MsgAllGetRequest {}
+
+message GetAllReply {
+    string messages = 1;
+}

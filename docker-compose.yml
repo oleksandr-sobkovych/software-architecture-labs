@@ -1,0 +1,44 @@
+version: '3'
+services:
+  messages-service:
+    build: ./messages-service
+    environment:
+      - MESSAGES_SERVICE_PORT
+      - RUST_LOG
+    expose:
+      - "$MESSAGES_SERVICE_PORT"
+
+  logging-service:
+    build: ./logging-service
+    environment:
+      - LOGGING_SERVICE_PORT
+    expose:
+      - "$LOGGING_SERVICE_PORT"
+      - "5071"
+
+  facade-service:
+    build: ./facade-service
+    environment:
+      - FACADE_SERVICE_PORT
+      - MESSAGES_SERVICE_PORT
+      - LOGGING_SERVICE_PORT
+      - NGINX_LOGGING_SERVICE_PORT
+      - RUST_LOG
+    ports:
+      - "$FACADE_SERVICE_PORT:$FACADE_SERVICE_PORT"
+
+  management-center:
+      image: hazelcast/management-center:5.2.1
+      ports:
+      - "8080:8080"
+
+  nginx-proxy-service:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./data/nginx.log:/usr/local/var/nginx/access.log:rw
+      - ./data/nginx_error.log:/usr/local/var/nginx/error.log:rw
+    depends_on:
+      - logging-service
+    expose:
+      - "$NGINX_LOGGING_SERVICE_PORT"
