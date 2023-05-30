@@ -2,18 +2,26 @@ use actix_web::{
     get, middleware::Logger, post, web::Data, App, HttpResponse, HttpServer, Responder,
 };
 use facade_service::{
-    log_message, receive_logged_messages, receive_static_message, ServiceClients, UserError,
+    log_message, receive_logged_messages, receive_random_messages, send_message, ServiceClients,
+    UserError,
 };
-use log::error;
+use log::{error, info};
 use log_message::MsgPostRequest;
+use rdkafka::util::get_rdkafka_version;
 use std::{env, process::exit, sync::Mutex};
 use uuid::Uuid;
 
 #[get("/")]
 async fn get_messages(data: Data<Mutex<ServiceClients>>) -> Result<impl Responder, UserError> {
-    let responce = receive_static_message(data.clone()).await?;
+    let responce = receive_random_messages(data.clone()).await?;
     let logged_msg = receive_logged_messages(data).await?;
-    Ok(HttpResponse::Ok().body(responce.message + " : " + logged_msg.messages.as_ref()))
+    Ok(HttpResponse::Ok().body(
+        "Message sequence:\n".to_string()
+            + responce.message.as_ref()
+            + "\nLogged messages:\n"
+            + logged_msg.messages.as_ref()
+            + "\n",
+    ))
 }
 
 #[post("/")]
@@ -22,6 +30,7 @@ async fn post_message(
     msg: String,
 ) -> Result<impl Responder, UserError> {
     let msg_id = Uuid::new_v4();
+    send_message(data.clone(), &msg, &msg_id).await?;
     log_message(
         data,
         MsgPostRequest {
@@ -36,6 +45,9 @@ async fn post_message(
 #[actix_web::main]
 async fn main() {
     env_logger::init();
+
+    let (version_n, version_s) = get_rdkafka_version();
+    info!("rd_kafka_version: 0x{:08x}, {}", version_n, version_s);
 
     let clients = Data::new(Mutex::new(ServiceClients::new()));
 

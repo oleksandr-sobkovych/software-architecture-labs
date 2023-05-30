@@ -1,4 +1,4 @@
-# [Lab 3: Microservices & Hazelcast](https://github.com/oleksandr-sobkovych/software-architecture-labs/tree/micro_hazelcast)
+# [Lab 4: Microservices with a Messaging Queue](https://github.com/oleksandr-sobkovych/software-architecture-labs/tree/micro_hazelcast)
    Authors: [Oleksandr Sobkovych](https://github.com/oleksandr-sobkovych)
 ## Prerequisites
 

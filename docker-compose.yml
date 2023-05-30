@@ -5,6 +5,8 @@ services:
     environment:
       - MESSAGES_SERVICE_PORT
       - RUST_LOG
+    depends_on:
+      - kafka-service
     expose:
       - "$MESSAGES_SERVICE_PORT"
 
@@ -20,9 +22,8 @@ services:
     build: ./facade-service
     environment:
       - FACADE_SERVICE_PORT
-      - MESSAGES_SERVICE_PORT
-      - LOGGING_SERVICE_PORT
       - NGINX_LOGGING_SERVICE_PORT
+      - NGINX_MESSAGES_SERVICE_PORT
       - RUST_LOG
     ports:
       - "$FACADE_SERVICE_PORT:$FACADE_SERVICE_PORT"
@@ -32,13 +33,31 @@ services:
       ports:
       - "8080:8080"
 
-  nginx-proxy-service:
+  nginx-logging-proxy-service:
     image: nginx:latest
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./data/nginx.log:/usr/local/var/nginx/access.log:rw
-      - ./data/nginx_error.log:/usr/local/var/nginx/error.log:rw
+      - ./nginx_logging.conf:/etc/nginx/nginx.conf:ro
+      - ./data/nginx_logging.log:/usr/local/var/nginx/access.log:rw
+      - ./data/nginx_logging_error.log:/usr/local/var/nginx/error.log:rw
     depends_on:
       - logging-service
     expose:
       - "$NGINX_LOGGING_SERVICE_PORT"
+
+  nginx-messages-proxy-service:
+    image: nginx:latest
+    volumes:
+      - ./nginx_messages.conf:/etc/nginx/nginx.conf:ro
+      - ./data/nginx_messages.log:/usr/local/var/nginx/access.log:rw
+      - ./data/nginx_messages_error.log:/usr/local/var/nginx/error.log:rw
+    depends_on:
+      - messages-service
+    expose:
+      - "$NGINX_MESSAGES_SERVICE_PORT"
+
+  kafka-service:
+    image: bitnami/kafka:latest
+    environment:
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    expose:
+      - "9092"

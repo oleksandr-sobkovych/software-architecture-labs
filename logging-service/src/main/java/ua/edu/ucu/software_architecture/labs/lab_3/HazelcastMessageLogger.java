@@ -51,7 +51,7 @@ public final class HazelcastMessageLogger extends MessageLoggerGrpc.MessageLogge
         responseObserver.onCompleted();
       }
     } catch (Exception e) {
-      logger.severe(e.getClass() + ": " + e.getMessage());
+      logger.severe(e.getClass() + " : " + e.getMessage());
       responseObserver
           .onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
     }
